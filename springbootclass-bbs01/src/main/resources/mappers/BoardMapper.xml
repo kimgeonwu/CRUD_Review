@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 마이바티스 참고 사이트 - http://blog.mybatis.org/ - http://www.mybatis.org/mybatis-3/ko/index.html 
+	@Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은 namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를 
+	지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의 완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다. -->
+<mapper namespace="com.springbootstudy.bbs.mapper.BoardMapper">
+
+	<!-- 게시판 테이블에서 no에 해당하는 게시글 읽은 횟수를 증가시키는 맵핑 구문 -->
+	<update id="incrementReadCount">
+		UPDATE springbbs
+			SET read_count = read_count + 1
+		WHERE no = #{no}
+	</update>
+
+	<!-- 전체 게시글 수를 반환하는 맵핑 구문 -->
+	<select id="getBoardCount">
+		SELECT
+			COUNT(no)
+		FROM springbbs
+	</select>
+
+	<!-- 게시판 테이블에서 no에 해당하는 게시글을 삭제하는 맵핑 구문 -->
+	<delete id="deleteBoard">
+		DELETE
+		FROM springbbs
+		WHERE no = #{no}
+	</delete>
+
+	<!-- 게시판 테이블에서 no에 해당하는 게시글을 수정하는 맵핑 구문 -->
+	<update id="updateBoard" parameterType="Board">
+		UPDATE springbbs
+			SET title = #{title}, content = #{content}, reg_date = SYSDATE()
+		WHERE no = #{no}
+	</update>
+
+	<!-- 게시판 테이블에서 no에 해당하는 게시글의 비밀번호를 가져오는 맵핑 구문 -->
+	<select id="isPassCheck">
+		SELECT
+			pass
+		FROM springbbs
+		WHERE no = #{no}
+	</select>
+
+	<!-- 게시글을 테이블에 추가하는 맵핑 구문 -->
+	<insert id="insertBoard" parameterType="Board"
+		useGeneratedKeys="true" keyProperty="no">
+		INSERT
+		INTO springbbs(title, writer, content, reg_date, read_count, pass, file1)
+		VALUES (#{title}, #{writer}, #{content}, SYSDATE(), #{readCount}, #{pass}, #{file1})
+	</insert>
+
+	<!-- 게시글 리스트를 가져오는 맵핑 구문 -->
+	<select id="boardList" resultType="Board">
+		SELECT
+			no,
+			title,
+			writer,
+			content,
+			reg_date AS regDate,
+			read_count AS readCount,
+			pass,
+			file1
+		FROM springbbs
+		ORDER BY no DESC
+		LIMIT #{startRow}, #{num}
+	</select>
+
+	<!-- no에 해당하는 게시글 하나를 가져오는 맵핑 구문 -->
+	<select id="getBoard" resultType="Board">
+		SELECT
+		*
+		FROM springbbs
+		WHERE no =
+		#{no}
+	</select>
+
+</mapper>	
+
+
+
