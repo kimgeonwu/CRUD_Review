@@ -54,9 +54,11 @@ public class BoardController {
 
 	// 게시글 수정 폼에서 들어오는 게시글 수정 요청을 처리하는 메서드
 	@PostMapping("/update")
-	public String updateBoard(Board board, RedirectAttributes reAttrs,
-			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, HttpServletResponse response,
-			PrintWriter out) {
+	public String updateBoard(Board board, RedirectAttributes reAttrs, HttpServletResponse response, PrintWriter out,
+			@RequestParam("no") int no, @RequestParam("pass") String pass,
+			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "type", defaultValue = "null") String type,
+			@RequestParam(value = "keyword", defaultValue = "null") String keyword) {
 
 		// 사용자가 입력한 비밀번호가 틀리면 자바스크립트로 응답
 		boolean isPassCheck = boardService.isPassCheck(board.getNo(), board.getPass());
@@ -71,17 +73,31 @@ public class BoardController {
 			return null;
 		}
 
-		// true면 DB 테이블에서 no에 해당하는 게시글 정보를 수정 후 리다이렉트
+		// 비밀번호가 맞으면 DB 테이블에서 no에 해당하는 게시글 정보를 수정
 		boardService.updateBoard(board);
-		reAttrs.addAttribute("pageNum", pageNum);
-		reAttrs.addFlashAttribute("test1", "1회성 파라미터");
+
+		// 현재 요청이 검색 요청인지 여부를 판단하는 searchOption 설정
+		boolean searchOption = (type.equals("null") || keyword.equals("null")) ? false : true;
+
+		// RedirectAttributs의 addAttribute() 메서드를 사용해 파라미터 설정
+		reAttrs.addAttribute("searchOption", searchOption);
+		reAttrs.addFlashAttribute("pageNum", pageNum);
+		
+		// 검색 요청이면 type과 keyword를 모델에 저장한다.
+		if(searchOption) {
+			reAttrs.addAttribute("type", type);
+			reAttrs.addAttribute("keyword", keyword);
+		}
+		// 게시글 수정이 완료되면 게시글 리스트로 리다이렉트 시킨다.
 		return "redirect:boardList";
 	}
 
 	// 게시글 수정 폼 요청을 처리하는 메서드
 	@PostMapping("/updateForm")
 	public String updateBoard(Model model, HttpServletResponse response, PrintWriter out, @RequestParam("no") int no,
-			@RequestParam("pass") String pass, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum) {
+			@RequestParam("pass") String pass, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "type", defaultValue = "null") String type,
+			@RequestParam(value = "keyword", defaultValue = "null") String keyword) {
 
 		// 사용자가 입력한 비밀번호가 틀리면 자바스크립트로 응답
 		boolean isPassCheck = boardService.isPassCheck(no, pass);
@@ -96,10 +112,22 @@ public class BoardController {
 			return null;
 		}
 
-		// 비밀번호가 맞으면 no에 해당하는 게시글 정보를 모델에 담아 수정 폼으로 이동
+		// 게시글 수정 폼 요청은 읽은 횟수를 증가시키지 않음
 		Board board = boardService.getBoard(no, false);
+
+		// 현재 요청이 검색 요청인지 여부를 판단하는 searchOption 설정
+		boolean searchOption = (type.equals("null") || keyword.equals("null")) ? false : true;
+
 		model.addAttribute("board", board);
 		model.addAttribute("pageNum", pageNum);
+		model.addAttribute("searchOption", searchOption);
+
+		// 검색 요청이면 type과 keyword를 모델에 저장한다.
+		if (searchOption) {
+			model.addAttribute("type", type);
+			model.addAttribute("keyword", keyword);
+		}
+
 		return "views/updateForm";
 	}
 
@@ -116,9 +144,18 @@ public class BoardController {
 		return "views/writeForm";
 	}
 
+	// 게시글 상세보기 요청 처리 메서드
 	@GetMapping("/boardDetail")
 	public String getBoard(Model model, @RequestParam("no") int no,
-			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum) {
+			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "type", defaultValue = "null") String type,
+			@RequestParam(value = "keyword", defaultValue = "null") String keyword) {
+
+		/*
+		 * type과 keyword라는 두 개의 요청 파라미터 값이 "null"인지 확인하고, 이를 기반으로 searchOption이라는 불리언 값을
+		 * 설정 검색 옵션이 있는지 여부를 판단하기 위해 사용
+		 **/
+		boolean searchOption = (type.equals("null") || keyword.equals("null")) ? false : true;
 
 		/*
 		 * 게시글 상세보기는 게시글 조회에 해당하므로 no에 해당하는 게시글 정보를 읽어오면서 두 번째 인수에 true를 지정해 게시글 읽은 횟수를
@@ -129,7 +166,13 @@ public class BoardController {
 		// no에 해당하는 게시글 정보와 pageNum을 모델에 저장
 		model.addAttribute("board", board);
 		model.addAttribute("pageNum", pageNum);
+		model.addAttribute("searchOption", searchOption);
 
+		// 검색 요청이면 type과 keyword를 모델에 저장
+		if (searchOption) {
+			model.addAttribute("type", type);
+			model.addAttribute("keyword", keyword);
+		}
 		return "views/boardDetail";
 	}
 

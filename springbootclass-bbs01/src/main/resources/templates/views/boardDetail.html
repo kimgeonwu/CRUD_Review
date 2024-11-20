@@ -20,6 +20,14 @@
 					<input type="hidden" name="no" id="no" th:value="${board.no}"/>
 					<input type="hidden" name="pass" id="rPass" />
 					<input type="hidden" name="pageNum" th:value="${pageNum}"/>
+					<!--/*
+						검색 리스트에서 들어온 요청일 경우 다시 keyword에 해당하는 
+						검색 리스트로 돌려보내기 위해서 아래의 파라미터가 필요하다.  
+					*/-->
+					<th:block th:if=${searchOption}>
+						<input type="hidden" name="type" th:value="${ type }" />
+						<input type="hidden" name="keyword" th:value="${ keyword }" />
+					</th:block>					
 				</form>
 				<div class="row text-center">
 					<div class="col">
@@ -71,9 +79,21 @@
 				<div class="row my-3">
 					<div class="col text-center">
 						<input class="btn btn-warning" type="button" id="detailUpdate" value="수정하기"/>
-						&nbsp;&nbsp;<input class="btn btn-danger"  type="button" id="detailDelete" value="삭제하기" />			
+						&nbsp;&nbsp;<input class="btn btn-danger"  type="button" id="detailDelete" value="삭제하기" />
+						<!--/* 
+							일반 게시 글 리스트에서 온 요청이면 일반 게시 글 리스트로 돌려 보낸다.  
+						*/-->
+						<th:block th:unless="${searchOption}">									
 						&nbsp;&nbsp;<input class="btn btn-primary" type="button" value="목록보기" 
 							th:onclick="@{|location.href='boardList?pageNum=${pageNum}'|}"/>
+						</th:block>
+						<!--/* 
+							검색 리스트에서 온 요청이면 검색 리스트의 동일한 페이지로 돌려보낸다.
+						*/-->							
+						<th:block th:if="${searchOption}">									
+						&nbsp;&nbsp;<input class="btn btn-primary" type="button" value="목록보기" 
+							th:onclick="@{|location.href='boardList?pageNum=${pageNum}&type=${type}&keyword=${keyword}'|}"/>
+						</th:block>
 					</div>
 				</div>
 			</div>	

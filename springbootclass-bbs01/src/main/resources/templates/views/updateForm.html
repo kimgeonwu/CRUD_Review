@@ -15,6 +15,14 @@
 					class="row g-3 border-primary" method="post">
 						<input type="hidden" name="no" th:value="${board.no}">
 						<input type="hidden" name="pageNum" th:value="${pageNum}">
+						<!--/*
+							검색 리스트에서 들어온 요청일 경우 다시 keyword에 해당하는 
+							검색 리스트로 돌려보내기 위해서 아래의 파라미터가 필요하다.  
+						*/-->
+						<th:block th:if=${searchOption}>
+							<input type="hidden" name="type" th:value="${ type }" />
+							<input type="hidden" name="keyword" th:value="${ keyword }" />
+						</th:block>						
 						<div class="col-4 offset-md-2">
 							<label for="writer" class="form-label">글쓴이</label>
 							<input type="text" class="form-control" name="writer" id="writer" 
@@ -33,13 +41,24 @@
 						<label for="content" class="form-label">내 용</label>
 						<textarea class="form-control" name="content" id="content" 
 							rows="10">[[${board.content}]]</textarea>
-					</div>	
+					</div>
 					<div class="col-8 offset-md-2 text-center mt-5">
-					<input type="submit" value="수정하기" class="btn btn-primary"/>
-						&nbsp;&nbsp;<input type="button" value="목록보기" 
-							th:onclick="@{|location.href='boardList?pageNum=${pageNum}'|}" 
-							class="btn btn-primary"/>
-					</div>	
+						<input type="submit" value="수정하기" class="btn btn-primary"/>
+						<!--/* 
+							일반 게시 글 리스트에서 온 요청이면 일반 게시 글 리스트로 돌려보낸다.  
+						*/-->
+						<th:block th:unless="${searchOption}">									
+						&nbsp;&nbsp;<input class="btn btn-primary" type="button" value="목록보기" 
+							th:onclick="@{|location.href='boardList?pageNum=${pageNum}'|}"/>
+						</th:block>
+						<!--/* 
+							검색 리스트에서 온 요청이면 검색 리스트의 동일한 페이지로 돌려보낸다.
+						*/-->							
+						<th:block th:if="${searchOption}">									
+						&nbsp;&nbsp;<input class="btn btn-primary" type="button" value="목록보기" 
+							th:onclick="@{|location.href='boardList?pageNum=${pageNum}&type=${type}&keyword=${keyword}'|}"/>
+						</th:block>
+					</div>						
 				</form>
 			</div>
 		</div>
