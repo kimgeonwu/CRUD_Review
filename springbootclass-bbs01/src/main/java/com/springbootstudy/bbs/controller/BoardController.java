@@ -28,7 +28,9 @@ public class BoardController {
 	@PostMapping("/delete")
 	public String deleteBoard(RedirectAttributes reAttrs, HttpServletResponse response, PrintWriter out,
 			@RequestParam("no") int no, @RequestParam("pass") String pass,
-			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum) {
+			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "type", defaultValue = "null") String type,
+			@RequestParam(value = "keyword", defaultValue = "null") String keyword) {
 
 		// 사용자가 입력한 비밀번호가 틀리면 자바스크립트로 응답
 		boolean isPassCheck = boardService.isPassCheck(no, pass);
@@ -45,8 +47,18 @@ public class BoardController {
 		// true면 DB 테이블에서 no에 해당하는 게시글 정보를 수정 후 리다이렉트
 		boardService.deleteBoard(no);
 
+		// 현재 요청이 검색 요청인지 여부를 판단하는 searchOption 설정
+		boolean searchOption = (type.equals("null") || keyword.equals("null")) ? false : true;
+
 		// RedirectAttributes를 이용해 리다이렉트 할 때 필요한 파라미터를 지정
 		reAttrs.addAttribute("pageNum", pageNum);
+		reAttrs.addAttribute("searchOption", searchOption);
+		
+		// 검색 요청이면 type과 keyword를 모델에 저장한다.
+		if (searchOption) {
+			reAttrs.addAttribute("type", type);
+			reAttrs.addAttribute("keyword", keyword);
+		}
 
 		// 게시글 삭제가 완료되면 게시글 리스트로 리다이렉트
 		return "redirect:boardList";
@@ -82,12 +94,13 @@ public class BoardController {
 		// RedirectAttributs의 addAttribute() 메서드를 사용해 파라미터 설정
 		reAttrs.addAttribute("searchOption", searchOption);
 		reAttrs.addFlashAttribute("pageNum", pageNum);
-		
+
 		// 검색 요청이면 type과 keyword를 모델에 저장한다.
-		if(searchOption) {
+		if (searchOption) {
 			reAttrs.addAttribute("type", type);
 			reAttrs.addAttribute("keyword", keyword);
 		}
+		
 		// 게시글 수정이 완료되면 게시글 리스트로 리다이렉트 시킨다.
 		return "redirect:boardList";
 	}
