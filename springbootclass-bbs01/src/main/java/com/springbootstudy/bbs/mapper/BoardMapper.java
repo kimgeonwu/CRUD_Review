@@ -13,11 +13,12 @@ public interface BoardMapper {
 	// no에 해당하는 게시글의 읽은 횟수를 DB 테이블에서 증가시키는 메서드
 	public void incrementReadCount(int no);
 	
-	// DB 테이블에 등록된 전체 게시글 수를 읽어와 반환하는 메서드
-	public int getBoardCount();
+	// DB 테이블에서 전체 게시글 수 또는 검색 게시글 수를 읽어와 반환하는 메서드
+	public int getBoardCount(@Param("type") String type, @Param("keyword") String ketword);
 	
-	// 한 페이지에 해당하는 게시글 리스트를 DB 테이블에서 읽어와 반환하는 메서드
-	public List<Board> boardList(@Param("startRow") int startRow, @Param("num") int num);
+	// 한 페이지에 출력할 게시글 리스트 또는 검색 리스트를 게시판 테이블에서 읽어와 반환하는 메서드
+	public List<Board> boardList(@Param("startRow") int startRow, @Param("num") int num,
+								@Param("type") String type, @Param("keyword") String keyword);
 	
 	// no에 해당 하는 게시글을 DB 테이블에서 삭제하는 메서드
 	public void deleteBoard(int no);

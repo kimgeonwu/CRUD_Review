@@ -68,26 +68,33 @@ public class BoardService {
 		boardMapper.insertBoard(board);
 	}
 
-	// 전체 게시글을 읽어와 반환하는 메서드
-	public Map<String, Object> boardList(int pageNum) {
+	// 한 페이지에 출력할 게시글 리스트 또는 검색 리스트와
+	// 페이징 처리에 필요한 데이터를 Map 객체로 반환하는 메서드
+	public Map<String, Object> boardList(int pageNum, String type, String keyword) {
 
 		// 요청 파라미터의 pageNum을 현재 페이지로 설정
 		int currentPage = pageNum;
 
 		// 현재 페이지에 해당하는 게시글 리스트의 첫 번째 행의 값을 계산
 		int startRow = (currentPage - 1) * PAGE_SIZE;
+		
+		/* type과 keyword라는 두 개의 요청 파라미터 값이 "null"인지 확인하고,
+		 * 이를 기반으로 searchOption이라는 불리언 값을 설정
+		 * 검색 옵션이 있는지 여부를 판단하기 위해 사용 **/
+		boolean searchOption = (type.equals("null") || keyword.equals("null")) ? false : true;
 
 		// BoardMapper를 이용해 전체 게시글 수를 가져옴
-		int listCount = boardMapper.getBoardCount();
+		int listCount = boardMapper.getBoardCount(type, keyword);
 
 		// 현재 페이지에 해당하는 게시글 리스트를 BoardMapper를 이용해 DB에서 읽어옴
-		List<Board> boardList = boardMapper.boardList(startRow, PAGE_SIZE);
+		List<Board> boardList = boardMapper.boardList(startRow, PAGE_SIZE, type, keyword);
 
 		// 페이지 그룹 이동 처리를 위해 전체 페이지 수를 계산
 		int pageCount = listCount / PAGE_SIZE + (listCount % PAGE_SIZE == 0 ? 0 : 1);
 
 		// 페이지 그룹 처리를 위해 페이지 그룹별 시작 페이지와 마지막 페이지를 계산
-		int startPage = (currentPage / PAGE_GROUP) * PAGE_GROUP + 1 - (currentPage % PAGE_GROUP == 0 ? PAGE_GROUP : 0);
+		int startPage = (currentPage / PAGE_GROUP) * PAGE_GROUP + 1
+				- (currentPage % PAGE_GROUP == 0 ? PAGE_GROUP : 0);
 
 		// 현재 페이지 그룹의 마지막 페이지
 		int endPage = startPage + PAGE_GROUP - 1;
@@ -107,7 +114,13 @@ public class BoardService {
 		modelMap.put("currentPage", currentPage);
 		modelMap.put("listCount", listCount);
 		modelMap.put("pageGroup", PAGE_GROUP);
+		modelMap.put("searchOption", searchOption);
 		
+		// 검색 요청이면 type과 keyword를 모델에 저장
+		if(searchOption) {
+			modelMap.put("type", type);
+			modelMap.put("keyword", keyword);
+		}	
 		return modelMap;
 	}
 

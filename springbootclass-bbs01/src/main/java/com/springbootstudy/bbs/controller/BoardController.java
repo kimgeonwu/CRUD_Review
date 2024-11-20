@@ -44,10 +44,10 @@ public class BoardController {
 		}
 		// true면 DB 테이블에서 no에 해당하는 게시글 정보를 수정 후 리다이렉트
 		boardService.deleteBoard(no);
-		
+
 		// RedirectAttributes를 이용해 리다이렉트 할 때 필요한 파라미터를 지정
 		reAttrs.addAttribute("pageNum", pageNum);
-		
+
 		// 게시글 삭제가 완료되면 게시글 리스트로 리다이렉트
 		return "redirect:boardList";
 	}
@@ -136,10 +136,12 @@ public class BoardController {
 	// 게시글 리스트 요청을 처리하는 메서드
 	@GetMapping({ "/", "/boardList" })
 	public String boardList(Model model,
-			@RequestParam(value = "pageNum", required = false, defaultValue = "1") int pageNum) {
+			@RequestParam(value = "pageNum", required = false, defaultValue = "1") int pageNum,
+			@RequestParam(value = "type", required = false, defaultValue = "null") String type,
+			@RequestParam(value = "keyword", required = false, defaultValue = "null") String keyword) {
 
 		// Service 클래스를 이용해 게시글 리스트를 가져온다.
-		Map<String, Object> modelMap = boardService.boardList(pageNum);
+		Map<String, Object> modelMap = boardService.boardList(pageNum, type, keyword);
 
 		// 파라미터로 받은 모델 객체에 뷰로 보낼 모델을 저장
 		model.addAllAttributes(modelMap);

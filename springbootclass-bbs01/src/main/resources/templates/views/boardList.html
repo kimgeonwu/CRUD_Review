@@ -36,8 +36,24 @@
 					<div class="col-auto">
 						<input type="submit" value="검 색" class="btn btn-primary"/>
 					</div>
-				</form>  		
-				<div class="row">
+				</form>
+				<!--/* 검색 요청일 경우 표시 */-->
+				<th:block th:if="${searchOption}">
+				<div class="row my-3">
+					<div class="col text-center">
+						"[[${ keyword  }]]" 검색 결과
+					</div>
+				</div>
+				<div class="row my-3">
+					<div class="col-6">
+						<a th:href="@{boardList}" class="btn btn-outline-success">리스트</a>
+					</div>
+					<div class="col-6 text-end">
+						<a th:href="@{addBoard}" class="btn btn-outline-success">글쓰기</a>
+					</div>
+					</div>
+				</th:block>
+				<div class="row my-3" th:if="${not searchOption}">
 					<div class="col text-end">
 						<a th:href="@{addBoard}" class="btn btn-outline-success">글쓰기</a>
 					</div>
@@ -55,42 +71,139 @@
 								</tr>
 							</thead>								
 							<tbody>
-								<th:block th:if="${not #lists.isEmpty(bList)}">										
+								<!--/*
+									검색 요청이면서 검색된 리스트가 존재할 경우
+									게시 글 상세보기로 링크를 적용할 때 type과 keyword 
+									파라미터를 적용해 링크를 설정한다.   
+								*/-->				
+								<th:block th:if="${searchOption and not #lists.isEmpty(bList)}">
+									<tr th:block th:each="board, status: ${bList}">
+										<td>[[ ${board.no} ]]</td>
+										<td><a th:href="@{boardDetail(no=${board.no}, pageNum=${currentPage},
+										 type=${type}, keyword=${keyword})}"
+											class="text-decoration-none link-text-dark">[[ ${board.title} ]]</a></td>
+										<td th:text="${ board.writer }"></td>
+										<td>[[${ #dates.format(board.regDate, 'yyyy-MM-dd') }]]</td>
+										<td th:text="${ board.readCount }"></td>
+									</tr>										
+								</th:block>	
+								<!--/* 
+									검색 요청이면서 검색된 리스트가 존재하지 않을 경우 
+								*/-->								
+								<th:block th:if="${searchOption and #lists.isEmpty(bList)}">
+									<tr>
+										<td colspan="5">"[[${keyword}]]"가 포함된 게시글이 존재하지 않음</td>
+									</tr>
+								</th:block>
+								<!--/*
+									일반 게시 글 리스트 요청이면서 게시 글 리스트가 존재할 경우
+									게시 글 상세보기로 링크를 적용할 때 type과 keyword 
+									파라미터는 제외하고 링크를 설정한다. 
+								*/-->
+								<th:block th:if="${not searchOption and not #lists.isEmpty(bList)}">
 									<tr th:block th:each="board, status: ${bList}">
 										<td>[[ ${board.no} ]]</td>
 										<td><a th:href="@{boardDetail(no=${board.no}, pageNum=${currentPage})}"
-										class="text-decoration-none link-text-dark">[[ ${board.title} ]]</a></td>
+											class="text-decoration-none link-text-dark">[[ ${board.title} ]]</a></td>
 										<td th:text="${ board.writer }"></td>
 										<td>[[${ #dates.format(board.regDate, 'yyyy-MM-dd') }]]</td>
 										<td th:text="${ board.readCount }"></td>
 									</tr>										
 								</th:block>
-								<th:block th:unless="${not #lists.isEmpty(bList)}">
+								<!--/* 
+									일반 게시 글 리스트 요청이면서 게시 글 리스트가 존재하지 않을 경우 
+								*/-->								
+								<th:block th:if="${not searchOption and #lists.isEmpty(bList)}">
 									<tr>
 										<td colspan="5">게시글이 존재하지 않음</td>											
 									</tr>
-								</th:block>
+								</th:block>					
 							</tbody>								
 						</table>
 					</div>  			
 				</div>
 				<div class="row">
 					<div class="col">
-						<nav aria-label="Page navigation">
+						<!--/* 
+							검색 요청 이면서 검색된 게시 글이 존재할 경우 페이지네이션
+							게시 글 상세보기로 링크를 적용할 때 type과 keyword 
+							파라미터를 적용해 링크를 설정한다.  
+						*/-->
+						<nav th:if="${searchOption and not #lists.isEmpty(bList)}" aria-label="Page navigation">
 							<ul class="pagination justify-content-center">
+								<!--/*
+								현재 페이지 그룹의 시작 페이지가 pageGroup보다 크다는 것은
+								이전 페이지 그룹이 존재한다는 것으로 현재 페이지 그룹의 시작
+								페이지에서 1을 빼면 이전 페이지 그룹의 endPage로 이동할 수 있다.
+								*/-->							
+							    <li class="page-item" th:if="${ startPage > pageGroup }">
+							      <a class="page-link" th:href="@{|?pageNum=${startPage - 1}
+							      &type=${type}&keyword=${keyword}|}">Pre</a>
+							    </li>						    
+								<!--/*
+								현재 페이지 그룹의 startPage부터 endPage까지 반복하면서 페이지
+								번호를 출력하고 링크를 설정한다. 현재 페이지는 링크에서 제외 시킨다. 
+								*/-->
+								<li th:each="num : ${ #numbers.sequence(startPage, endPage) }"
+									th:classappend="${num == currentPage} ? 'active'"									
+									class="page-item" aria-current="page">									
+									<th:block th:if="${num != currentPage}">
+										<a th:text="${num}" class="page-link" th:href="@{|?pageNum=${num}
+										&type=${type}&keyword=${keyword}|}" ></a>
+									</th:block>
+									<!--/* 현재 페이지는 링크에서 제외 시킨다.*/-->
+									<th:block th:unless="${num != currentPage}">
+										<span th:text="${num}" class="page-link"></span>
+									</th:block>
+								</li>
+						    	<!--/* 
+								현재 페이지 그룹의 마지막 페이지가 전체 페이지 보다 작다는 것은
+								다음 페이지 그룹이 존재한다는 것으로 현재 페이지 그룹의 시작 페이지에
+								pageGroup을 더하여 링크를 설정하면 다음 페이지 그룹의 startPage로
+								이동할 수 있다. 
+						    	*/-->
+							    <li class="page-item" th:if="${endPage < pageCount}">
+							      <a class="page-link" th:href="@{|?pageNum=${startPage + pageGroup}
+							      &type=${type}&keyword=${keyword}|}">Next</a>
+								</li>						  	
+						  	</ul>
+						</nav>
+						<!--/* 
+							일반 게시글 요청 이면서 게시 글이 존재할 경우 페이지네이션
+							게시 글 상세보기로 링크를 적용할 때 type과 keyword 
+							파라미터는 제외하고 링크를 설정한다.
+						*/-->
+						<nav th:if="${not searchOption and not #lists.isEmpty(bList)}" aria-label="Page navigation">
+							<ul class="pagination justify-content-center">
+								<!--/*
+								현재 페이지 그룹의 시작 페이지가 pageGroup보다 크다는 것은
+								이전 페이지 그룹이 존재한다는 것으로 현재 페이지 그룹의 시작
+								페이지에서 1을 빼면 이전 페이지 그룹의 endPage로 이동할 수 있다.
+								*/-->							
 							    <li class="page-item" th:if="${ startPage > pageGroup }">
 							      <a class="page-link" th:href="@{|?pageNum=${startPage - 1}|}">Pre</a>
 							    </li>						    
+								<!--/*
+								현재 페이지 그룹의 startPage부터 endPage까지 반복하면서 페이지
+								번호를 출력하고 링크를 설정한다. 현재 페이지는 링크에서 제외 시킨다. 
+								*/-->
 								<li th:each="num : ${ #numbers.sequence(startPage, endPage) }"
 									th:classappend="${num == currentPage} ? 'active'"									
 									class="page-item" aria-current="page">									
 									<th:block th:if="${num != currentPage}">
 										<a th:text="${num}" th:href="@{|?pageNum=${num}|}" class="page-link"></a>
 									</th:block>
+									<!--/* 현재 페이지는 링크에서 제외 시킨다.*/-->
 									<th:block th:unless="${num != currentPage}">
 										<span th:text="${num}" class="page-link"></span>
 									</th:block>
 								</li>
+						    	<!--/* 
+								현재 페이지 그룹의 마지막 페이지가 전체 페이지 보다 작다는 것은
+								다음 페이지 그룹이 존재한다는 것으로 현재 페이지 그룹의 시작 페이지에
+								pageGroup을 더하여 링크를 설정하면 다음 페이지 그룹의 startPage로
+								이동할 수 있다. 
+						    	*/-->
 							    <li class="page-item" th:if="${endPage < pageCount}">
 							      <a class="page-link" th:href="@{|?pageNum=${startPage + pageGroup}|}">Next</a>
 								</li>						  	
