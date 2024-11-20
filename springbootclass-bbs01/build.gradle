@@ -35,9 +35,13 @@ dependencies {
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	
+	// 공통 레이아웃을 정의하고 여러 페이지에서 재사용 가능
+	// 템플릿 구조를 단순화하고 코드 중복을 줄임
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
-	// 공통 레이아웃을 정의하고 이를 여러 페이지에서 재사용할 수 있어,
-	// 템플릿 구조를 단순화하고 코드 중복을 줄일 수 있음
+	
+	// 서버로 들어오는 모든 요청을 기본적으로 스프링 시큐 리티의 제어를 받음
+	// 접근하도록 URL 필터가 설정되어 있어서 사용자 인증 절차를 거처야 사이트에 접속 가능
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
