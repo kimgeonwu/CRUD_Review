@@ -16,6 +16,7 @@ public class MemberController {
 	@Autowired
 	public MemberService memberService;
 	
+	// "/login"으로 들어오는 POST 방식의 요청을 처리하는 메서드
 	
 	
 }
