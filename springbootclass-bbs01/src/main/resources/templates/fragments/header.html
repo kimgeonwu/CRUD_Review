@@ -11,13 +11,37 @@
 				<div class="col">
 					<ul class="nav justify-content-end">
 						<li class="nav-item">
-							<a class="nav-link" href="#">로그인</a>
+							<!--/* session에 isLogin 값을 비교해 로그인 상태인지 체크 */-->
+							<th:block th:unless="${session.isLogin}">
+								<a class="nav-link" th:href="@{loginForm}">로그인-폼</a>
+							</th:block>
+							<th:block th:if="${session.isLogin}">
+								<!--/* MemberController를 통해서 로그아웃 처리 */-->
+								<a class="nav-link" th:href="@{memberLogout}">로그아웃</a>
+							</th:block>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="boardList">게시글 리스트</a>
+							<th:block th:unless="${session.isLogin}">							
+								<a th:href="@{#}" class="nav-link" 
+									th:attrappend="data-bs-toggle='modal', data-bs-target='#loginModal'">							
+									로그아웃-모달
+								</a>
+							</th:block>
+							<th:block th:if="${session.isLogin}">
+								<!--/* 스프링 시큐리티 설정을 통해서 로그아웃 처리 */-->							
+								<a class="nav-link" th:href="@{logout}">로그아웃</a>
+							</th:block>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#">회원가입</a>
+							<a class="nav-link" href="boardList">게시 글 리스트</a>
+						</li>
+						<li class="nav-item">
+							<th:block th:unless="${session.isLogin}">
+								<a class="nav-link" href="joinForm">회원가입</a>
+							</th:block>
+							<th:block th:if="${session.isLogin}">
+								<a class="nav-link" href="memberUpdateForm">정보수정</a>
+							</th:block>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="#">주문/배송조회</a>
@@ -29,7 +53,11 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col text-end">로그인시 인사말 출력</div>
+				<div class="col text-end pe-5 text-primary">					
+					<div th:if="${session.isLogin}">
+						안녕하세요 [[ ${session.member != null} ? ${session.member.id} ]]님
+					</div>					
+				</div>
 			</div>
 		</div>
 	</div>

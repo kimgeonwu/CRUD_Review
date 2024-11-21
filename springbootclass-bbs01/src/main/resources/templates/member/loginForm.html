@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"		
+		layout:decorate="~{layouts/main_layout}">		
+	<!-- content -->
+	<div layout:fragment="content" class="row my-5" id="global-content">
+	<th:block>
+		<link th:href="@{css/member.css}" rel="stylesheet" />
+	</th:block>
+		<div class="col">
+			<form class="my-5" id="loginForm" action="login" method="post">
+				<h2 class="fw-bold">Member Login</h2>
+				<fieldset>	
+					<legend>Member Loin</legend>
+					<div id="login">
+						<p>
+							<label for="userId" class="labelStyle">아이디</label>
+							<input type="text" id="userId" name="userId" />
+						</p>
+						<p>
+							<label for="userPass" class="labelStyle">비밀번호</label>
+							<input type="password" id="userPass" name="pass"/>
+						</p>
+					</div>
+						<input type="submit" value="로그인" id="btnLogin" />
+					<div id="searchBtn">
+						<p>
+							<span>비밀번호 찾기</span> | <span>아이디 찾기</span> | <span>회원가입</span>
+						</p>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<th:block>
+		</th:block>
+	</div>
+</html>

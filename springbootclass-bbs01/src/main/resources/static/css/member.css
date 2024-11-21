@@ -1,0 +1,66 @@
+@CHARSET "UTF-8";
+/* 로그인 폼 */
+#loginForm h2, #loginForm p, 
+#loginForm input, #loginForm label { 
+	margin: 0px;
+	padding: 0px;
+	font-family: "맑은 고딕",돋움;
+	font-size: 12px;
+}		
+#loginForm h2 {
+	font-size: 40px;
+	letter-spacing: -1px;
+	color: #C8C8C8;
+	text-align: center;
+}
+#loginForm legend {
+	display: none;
+}
+#loginForm fieldset {
+	width: 430px;
+	margin: 10px auto;
+	border: 5px solid #efefef;
+	padding: 50px;
+	border-radius: 15px;
+}
+#loginForm #login {
+	float: left;
+}
+#loginForm label.labelStyle {
+	width: 60px;
+	display: block;
+	float: left;
+	font-weight: bold;	
+}
+#loginForm #userId, #loginForm #userPass {
+	width: 150px;
+	border: 1px solid #999;
+	margin-bottom: 5px;
+	padding: 2px;
+}
+#loginForm #btnLogin {
+	display: block;
+	background-color: #F63;
+	border-radius: 5px;
+	border-style: none;
+	color: #fff;
+	width: 80px;
+	height: 57px;
+	position: relative;
+	float: left;
+	left: 10px;
+	font-size: 13px;
+	font-weight: bold;
+	cursor: pointer;
+}
+#loginForm #searchBtn {
+	clear: both;	
+}
+#searchBtn > p {
+	position: relative;
+	top: 20px;
+	text-align: center;
+}
+#searchBtn > p > span {
+	padding: 15px 10px;
+}
