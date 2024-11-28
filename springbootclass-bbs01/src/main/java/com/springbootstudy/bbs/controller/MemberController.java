@@ -26,6 +26,16 @@ public class MemberController {
 	// 회원 관련 Business 로직을 담당하는 객체를 의존성 주입하도록 설정
 	@Autowired
 	public MemberService memberService;
+	
+	// "/memberLogout"으로 들어오는 GET 방식 요청 처리 메서드
+	public String logout(HttpSession session) {
+		
+		// 현재 세션을 종료하고 새로운 세션을 시작
+		session.invalidate();
+		
+		// 로그아웃 되면 로그인 폼으로 리다이렉트
+		return "redirect:/loginForm";
+	}
 
 	// "/login"으로 들어오는 POST 방식의 요청을 처리하는 메서드
 	@PostMapping("/login")
@@ -57,6 +67,10 @@ public class MemberController {
 		}
 		// 로그인을 성공하면 회원 정보를 DB에서 가져와 세션에 저장
 		Member member = memberService.getMember(id);
+		session.setAttribute("isLogin", true);
+		
+		// 동일한 이름으로 모델에 추가하면 스프링이 세션 영역에 데이터를 저장
+		model.addAttribute("member", member);
 		
 		// 로그인이 성공하면 게시글 리스트로 리다이렉트
 		return "redirect:/boardList";
