@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
@@ -28,6 +29,7 @@ public class MemberController {
 	public MemberService memberService;
 	
 	// "/memberLogout"으로 들어오는 GET 방식 요청 처리 메서드
+	@GetMapping("/memberLogout")
 	public String logout(HttpSession session) {
 		
 		// 현재 세션을 종료하고 새로운 세션을 시작

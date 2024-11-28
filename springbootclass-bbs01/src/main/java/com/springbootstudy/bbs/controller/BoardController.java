@@ -1,14 +1,19 @@
 package com.springbootstudy.bbs.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springbootstudy.bbs.domain.Board;
@@ -23,6 +28,9 @@ public class BoardController {
 
 	@Autowired
 	private BoardService boardService;
+
+	// 업로드한 파일을 저장할 폴더 위치를 상수로 선언
+	private static final String DEFAULT_PATH = "src/main/resources/static/files/";
 
 	// 게시글 삭제 요청을 처리 메서드
 	@PostMapping("/delete")
@@ -53,7 +61,7 @@ public class BoardController {
 		// RedirectAttributes를 이용해 리다이렉트 할 때 필요한 파라미터를 지정
 		reAttrs.addAttribute("pageNum", pageNum);
 		reAttrs.addAttribute("searchOption", searchOption);
-		
+
 		// 검색 요청이면 type과 keyword를 모델에 저장한다.
 		if (searchOption) {
 			reAttrs.addAttribute("type", type);
@@ -100,7 +108,7 @@ public class BoardController {
 			reAttrs.addAttribute("type", type);
 			reAttrs.addAttribute("keyword", keyword);
 		}
-		
+
 		// 게시글 수정이 완료되면 게시글 리스트로 리다이렉트 시킨다.
 		return "redirect:boardList";
 	}
@@ -146,8 +154,41 @@ public class BoardController {
 
 	// 게시글 쓰기 폼에서 들어오는 게시글 쓰기 요청을 처리하는 메서드
 	@PostMapping("/addBoard")
-	public String addBoard(Board board) {
+	public String addBoard(Board board, @RequestParam(value = "addFile", required = false) MultipartFile multipartFile)
+			throws IOException {
+
+		// 업로된 파일이 있으면
+		if (multipartFile != null && !multipartFile.isEmpty()) {
+
+			// File 클래스는 파일과 디렉터리를 다루기 위한 클래스
+			File parent = new File(DEFAULT_PATH);
+
+			// 파일 업로드 위치에 폴더가 존재하지 않으면 폴더 생성
+			if (!parent.isDirectory() && !parent.exists()) {
+				parent.mkdirs();
+			}
+
+			// 중복되지 않는 ID를 생성하기 위해 사용
+			UUID uid = UUID.randomUUID();
+
+			// 파일 이름에서 확장자 분리
+			String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+
+			// 앞에서 생성한 UUID를 문자열로 변환해서 저장
+			String saveName = uid.toString() + "." + extension;
+
+			// 저장할 경로의 부모 디렉토리의 절대 경로 설정
+			File file = new File(parent.getAbsolutePath(), saveName);
+
+			// 업로드 되는 파일을 static/files 폴더에 복사한다.
+			multipartFile.transferTo(file);
+			
+			// 업로드된 파일 이름을 게시글의 첨부 파일로 설정한다.
+			board.setFile1(saveName);			
+		}
 		boardService.addBoard(board);
+		
+		// 게시글 쓰기가 완료되면 게시글 리스트로 리다이렉트
 		return "redirect:boardList";
 	}
 
