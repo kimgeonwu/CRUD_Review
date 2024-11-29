@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.springbootstudy.bbs.domain.Board;
 import com.springbootstudy.bbs.service.BoardService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +32,29 @@ public class BoardController {
 
 	// 업로드한 파일을 저장할 폴더 위치를 상수로 선언
 	private static final String DEFAULT_PATH = "src/main/resources/static/files/";
+	
+	// 게시글 상세보기에서 들어오는 파일 다운로드 요청을 처리하는 메서드
+	public void download(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		
+		String fileName = req.getParameter("fileName");
+		File parent = new File(DEFAULT_PATH);
+		File file = new File(parent.getAbsolutePath(), fileName);
+		
+		// 응답 데이터에 파일 다운로드 관련 컨텐츠 타입 설정 필요
+		resp.setContentType("application/download; charset=utf-8");
+		resp.setContentLength((int) file.length());
+		
+		// 한글 파일명을 클라이언트로 바로 내려보내기 때문에 URLEncoding이 필요
+		fileName = URLEncoder.encode(file.getName(), "UTF-8");
+		
+		// 전송되는 파일 이름을 한글 그대(원본 파일 이름 그대로)로 보내주기 위한 설정이다.
+		resp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
+		
+		// 파일로 전송되야 하므로 전송되는 데이터 인코딩은 바이너리로 설정
+		resp.setHeader("Content-Transfer-Encoding","binary");
+		
+		
+	}
 
 	// 게시글 삭제 요청을 처리 메서드
 	@PostMapping("/delete")
@@ -185,6 +209,10 @@ public class BoardController {
 			
 			// 업로드된 파일 이름을 게시글의 첨부 파일로 설정한다.
 			board.setFile1(saveName);			
+		} else {
+			
+			// 파일이 업로드 되지 않으면 콘솔에 로그 출력
+			log.info("No file uploaded - 파일이 업로드 되지 않음");
 		}
 		boardService.addBoard(board);
 		

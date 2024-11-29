@@ -62,7 +62,7 @@
 									<th>파&nbsp;&nbsp;&nbsp;&nbsp;일</th>
 									<td colspan="3">
 										<th:block th:if="${ not #strings.isEmpty(board.file1) }">
-											<a th:href="@{|files/${board.file1}|}">다운로드</a>
+											<a th:href="@{|fileDownload?fileName=${board.file1}|}">다운로드</a>
 										</th:block>
 										<th:block th:unless="${ not #strings.isEmpty(board.file1) }">
 											첨부파일 없음
