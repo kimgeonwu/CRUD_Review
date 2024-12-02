@@ -28,6 +28,18 @@ public class MemberController {
 	@Autowired
 	public MemberService memberService;
 	
+	public String overlapIdCheck(Model model, @RequestParam("id") String id) {
+		
+		// 회원 아이디 중복 여부
+		boolean overlap = memberService.overlapIdCheck(id);
+		
+		// model에 회원 ID와 회원 ID 중복 여부를 저장
+		model.addAttribute("id", id);
+		model.addAttribute("overlap", overlap);
+		
+		return "member/overlapIdCheck.html";
+	}
+	
 	// "/memberLogout"으로 들어오는 GET 방식 요청 처리 메서드
 	@GetMapping("/memberLogout")
 	public String logout(HttpSession session) {

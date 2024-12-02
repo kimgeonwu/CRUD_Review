@@ -21,6 +21,15 @@ public class MemberService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	// 회원 가입 시 아이디 중복을 체크하는 메서드
+	public boolean overlapIdCheck(String id) {
+		Member member = memberMapper.getMember(id);
+		if (member == null) {
+			return false;
+		}
+		return true; 
+	}
+	
 	// 회원 로그인 요청을 처리하고 결과를 반환하는 메서드
 	public int login(String id, String pass) {
 		int result = -1;

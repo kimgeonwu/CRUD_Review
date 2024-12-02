@@ -14,6 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addViewController("/writeBoard").setViewName("views/writeForm");
 		// 로그인 폼 뷰 전용 컨트롤러 설정 추가
 		registry.addViewController("/loginForm").setViewName("member/loginForm");
+		// 회원가입 폼 뷰 전용 컨트롤러 설정 추가
+		registry.addViewController("/joinForm").setViewName("memberJoinForm");
 	}
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {

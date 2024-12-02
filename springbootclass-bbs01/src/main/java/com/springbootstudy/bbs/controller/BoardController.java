@@ -1,14 +1,18 @@
 package com.springbootstudy.bbs.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,13 +51,28 @@ public class BoardController {
 		// 한글 파일명을 클라이언트로 바로 내려보내기 때문에 URLEncoding이 필요
 		fileName = URLEncoder.encode(file.getName(), "UTF-8");
 		
-		// 전송되는 파일 이름을 한글 그대(원본 파일 이름 그대로)로 보내주기 위한 설정이다.
+		// 전송되는 파일 이름을 한글 그대(원본 파일 이름 그대로)로 보내주기 위한 설정
 		resp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
 		
 		// 파일로 전송되야 하므로 전송되는 데이터 인코딩은 바이너리로 설정
 		resp.setHeader("Content-Transfer-Encoding","binary");
 		
+		// 파일을 클라이언트로 보내기 위해 응답 스트림을 구함
+		OutputStream out = resp.getOutputStream();
+		FileInputStream fis = null;
 		
+		// 클라이언트로 보낼 파일을 읽고 응답 스트림을 통해 클라이언트로 출력
+		fis = new FileInputStream(file);
+		
+		// 응답 스트림에 파일을 복사
+		FileCopyUtils.copy(fis, out);
+		
+		if(fis != null) {
+			fis.close();
+		}
+		
+		// 파일 데이터를 클라이언트로 출력
+		out.flush();
 	}
 
 	// 게시글 삭제 요청을 처리 메서드
