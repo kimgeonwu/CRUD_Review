@@ -27,26 +27,50 @@ public class MemberController {
 	// 회원 관련 Business 로직을 담당하는 객체를 의존성 주입하도록 설정
 	@Autowired
 	public MemberService memberService;
-	
+
+	// 회원가입 폼에서 들어오는 회원가입 요청을 처리하는 메서드
+	@PostMapping("/joinResult")
+	public String joinResult(Model model, Member member, @RequestParam("pass1") String pass1,
+			@RequestParam("emailId") String emailId, @RequestParam("emailDomain") String emailDomain,
+			@RequestParam("mobile1") String mobile1, @RequestParam("mobile2") String mobile2,
+			@RequestParam("mobile3") String mobile3, @RequestParam("phone1") String phone1,
+			@RequestParam("phone2") String phone2, @RequestParam("phone3") String phone3,
+			@RequestParam(value = "emailGet", required = false, defaultValue = "false") boolean emailGet) {
+		member.setPass(pass1);
+		member.setEmail(emailId + "@" + emailDomain);
+		member.setMobile(mobile1 + "-" + mobile2 + "-" + mobile3);
+		if (phone2.equals("") || phone3.equals("")) {
+			member.setPhone("");
+		} else {
+			member.setPhone(phone1 + "-" + phone2 + "-" + phone3);
+		}
+		member.setEmailGet(Boolean.valueOf(emailGet));
+		// MemberService를 통해서 회원 가입 폼에서 들어온 데이터를 DB에 저장한다.
+		memberService.addMember(member);
+		// 로그인 폼으로 리다이렉트 시킨다.
+		return "redirect:loginForm";
+	}
+
+	@GetMapping("/overlapIdCheck")
 	public String overlapIdCheck(Model model, @RequestParam("id") String id) {
-		
+
 		// 회원 아이디 중복 여부
 		boolean overlap = memberService.overlapIdCheck(id);
-		
+
 		// model에 회원 ID와 회원 ID 중복 여부를 저장
 		model.addAttribute("id", id);
 		model.addAttribute("overlap", overlap);
-		
+
 		return "member/overlapIdCheck.html";
 	}
-	
+
 	// "/memberLogout"으로 들어오는 GET 방식 요청 처리 메서드
 	@GetMapping("/memberLogout")
 	public String logout(HttpSession session) {
-		
+
 		// 현재 세션을 종료하고 새로운 세션을 시작
 		session.invalidate();
-		
+
 		// 로그아웃 되면 로그인 폼으로 리다이렉트
 		return "redirect:/loginForm";
 	}
@@ -54,40 +78,39 @@ public class MemberController {
 	// "/login"으로 들어오는 POST 방식의 요청을 처리하는 메서드
 	@PostMapping("/login")
 	public String login(Model model, @RequestParam("userId") String id, @RequestParam("pass") String pass,
-						HttpSession session, HttpServletResponse resp) throws ServletException, IOException {
-		
+			HttpSession session, HttpServletResponse resp) throws ServletException, IOException {
+
 		// MemberService 클래스를 사용해 로그인 성공여부 확인
 		int result = memberService.login(id, pass);
-		
-		if(result == -1) { // 회원 아이디가 존재하지 않으면
+
+		if (result == -1) { // 회원 아이디가 존재하지 않으면
 			resp.setContentType("text/html; charset=utf-8");
 			PrintWriter out = resp.getWriter();
 			out.println("<script>");
 			out.println("	alert('존재하지 않는 아이디 입니다.');");
 			out.println("	history.back();");
 			out.println("</script>");
-			
+
 			return null;
-			
-		} else if(result == 0) { // 비밀번호가 틀리면
+
+		} else if (result == 0) { // 비밀번호가 틀리면
 			resp.setContentType("text/html; charset=utf-8");
 			PrintWriter out = resp.getWriter();
 			out.println("<script>");
 			out.println("	alert('비밀번호가 다릅니다.');");
 			out.println("	location.href='loginForm'");
 			out.println("</script>");
-			
-		return null;
+
+			return null;
 		}
 		// 로그인을 성공하면 회원 정보를 DB에서 가져와 세션에 저장
 		Member member = memberService.getMember(id);
 		session.setAttribute("isLogin", true);
-		
+
 		// 동일한 이름으로 모델에 추가하면 스프링이 세션 영역에 데이터를 저장
 		model.addAttribute("member", member);
-		
+
 		// 로그인이 성공하면 게시글 리스트로 리다이렉트
 		return "redirect:/boardList";
 	}
 }
-	
