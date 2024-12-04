@@ -21,6 +21,18 @@ public class MemberService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	// 회원정보 수정 시에 기존 비밀번호가 맞는지 체크하는 메서드
+	public boolean memberPassCheck(String id, String pass) {
+		String dbPass = memberMapper.memberPassCheck(id);
+		boolean result = false;
+		
+		// 비밀번호가 맞다면 true
+		if(passwordEncoder.matches(pass, dbPass)) {
+			result = true;
+		}
+		return result;
+	}
+	
 	// 회원 정보를 MemberMapper를 이요해 회원 테이블에 저장하는 메서드
 	public void addMember(Member member) {
 		

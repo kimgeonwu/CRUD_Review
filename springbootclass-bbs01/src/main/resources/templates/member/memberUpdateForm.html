@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<!--/* 
+	Thymeleaf와 Thymeleaf Layout을 사용하기 위한 NameSpace를 정의한다.
+	layout:decorate 옵션은 아래의 <th:block layout:fragment="content">
+	부분을 어떤 레이아웃에 적용할지 설정하는 것으로 경로 지정은
+	templates 폴더를 기준으로 지정하면 된다.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"		
+		layout:decorate="~{layouts/main_layout}">
+	<!--/* 
+		block을 사용해도 되고 div에 직접 layout:fragment를 적용해도 된다.
+		main_layout.html에서 지정한 layout:fragment의 이름과 같아야 한다.  
+	*/-->
+	<th:block layout:fragment="content">
+	<!-- 
+		새로운 5자리 우편번호로 회원 주소를 입력 받기 위해 daum.net에서
+		제공하는 우편번호 찾기 API를 사용하였다.
+		참고 사이트 : http://postcode.map.daum.net/guide
+	-->    
+	<script src=
+	"https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+		<div class="row my-5" id="global-content">
+			<div class="col">
+				<div class="row my-3 text-center">
+					<div class="col">
+						<h2 class="fs-3 fw-bold">회원 정보 수정</h2>
+					</div>
+				</div>
+				<form action="memberUpdateResult" name="memberUpdateForm" 
+					method="post" id="memberUpdateForm">
+					<div class="row mt-5 mb-3">
+						<div class="col-8 offset-2">				
+							<label for="name" class="form-label">* 이 름 : </label>
+							<input type="text" class="form-control" name="name" id="name" 
+								th:value="${session.member.name}" readonly>
+						</div>				
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="userId" class="form-label">* 아이디 : </label>
+							<div class="row">
+								<div class="col">
+									<input type="text" class="form-control" name="id" id="id" 
+										th:value="${session.member.id}" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="oldPass" class="form-label">* 기존 비밀번호 : </label>
+							<div class="row">
+								<div class="col-6">
+									<input type="password" class="form-control" name="oldPass" 
+										id="oldPass">
+								</div>
+								<div class="col-4">
+									<input type="button" class="btn btn-warning" id="btnPassCheck" 
+										value="비밀번호 확인">
+								</div>
+							</div>					
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="pass1" class="form-label">* 새 비밀번호 : </label>
+							<input type="password" class="form-control" name="pass1" id="pass1">					
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="pass2" class="form-label">* 새 비밀번호 확인 : </label>
+							<input type="password" class="form-control" name="pass2" id="pass2">
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="zipcode" class="form-label">* 우편번호 : </label>
+							<div class="row">
+								<div class="col-4">
+									<input type="text" class="form-control" name="zipcode" id="zipcode" 
+										maxlength="5" readonly th:value="${session.member.zipcode}">
+								</div>
+								<div class="col-4">
+									<input type="button" class="btn btn-warning" id="btnZipcode" 
+										value="우편번호 찾기">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="address1" class="form-label">* 자택주소 : </label>
+							<input type="text" class="form-control" name="address1" id="address1"  
+								readonly th:value="${session.member.address1}">
+						</div>	
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="address2" class="form-label">상세주소 : </label>				
+							<input type="text" class="form-control" name="address2" id="address2"
+								th:value="${session.member.address2}">
+						</div>
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="emailId" class="form-label">* 이 메 일 : </label>
+							<div class="row">
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="emailId" id="emailId"
+										th:value="${session.member.email.split('@')[0]}">
+								</div> @ 
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="emailDomain" 
+										id="emailDomain" th:value="${session.member.email.split('@')[1]}">
+								</div>
+								<div class="col-md-3">
+									<select class="form-select" name="selectDomain" id="selectDomain">
+										<option>직접입력</option>
+										<option>네이버</option>
+										<option>다음</option>
+										<option>한메일</option>
+										<option>구글</option>
+									</select>
+								</div>
+							</div>
+						</div>	
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="mobile2" class="form-label">* 휴 대 폰 : </label>
+							<div class="row">
+								<div class="col-md-3">
+									<select class="form-select" name="mobile1" id="mobile1">
+										<option th:selected="${session.member.mobile.split('-')[0] == '010'}">
+											010</option>
+										<option th:selected="${session.member.mobile.split('-')[0] == '011'}">
+											011</option>
+										<option th:selected="${session.member.mobile.split('-')[0] == '016'}">
+											016</option>
+										<option th:selected="${session.member.mobile.split('-')[0] == '017'}">
+											017</option>
+										<option th:selected="${session.member.mobile.split('-')[0] == '018'}">
+											018</option>
+										<option th:selected="${session.member.mobile.split('-')[0] == '019'}">
+											019</option>
+									</select>
+								</div>-
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="mobile2" id="mobile2" 
+										maxlength="4" th:value="${session.member.mobile.split('-')[1]}">
+								</div>-
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="mobile3" id="mobile3" 
+										maxlength="4" th:value="${session.member.mobile.split('-')[2]}">
+								</div>
+							</div>
+						</div>
+					</div>			
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label class="form-label">메일 수신여부 : </label>					
+							<div class="row">
+								<div class="col-md-3">
+									<div class="form-check">
+										<input type="radio" class="form-check-input" name="emailGet" 
+											id="emailOk" value="true" th:checked="${session.member.emailGet}">
+										<label class="form-check-label" for="emailOk">수신함</label>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-check">
+										<input type="radio" class="form-check-input" name="emailGet" 
+											id="emailNo" value="false" th:checked="${!session.member.emailGet}">
+										<label class="form-check-label" for="emailNo">수신않함</label>
+									</div>
+								</div>	
+							</div>					
+						</div>	
+					</div>
+					<div class="row my-3">
+						<div class="col-8 offset-2">
+							<label for="phone2" class="form-label">자택전화 : </label>
+							<div class="row">
+								<div class="col-md-3">
+									<select class="form-select" name="phone1" id="phone1">
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '02' : false}">
+											02</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '031' : false}">
+											031</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '032' : false}">
+											032</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '033' : false}">
+											033</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '041' : false}">
+											041</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '042' : false}">
+											042</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '043' : false}">
+											043</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '044' : false}">
+											044</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '051' : false}">
+											051</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '052' : false}">
+											052</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '053' : false}">
+											053</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '054' : false}">
+											054</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '055' : false}">
+											055</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '061' : false}">
+											061</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '062' : false}">
+											062</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone) 
+											? session.member.phone.split('-')[0] == '063' : false}">
+											063</option>
+										<option th:selected="${! #strings.isEmpty(session.member.phone)  
+											? session.member.phone.split('-')[0] == '064' : false}">
+											064</option>
+									</select>
+								</div> - 
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="phone2" id="phone2" 
+										maxlength="4" 
+										th:value="${#strings.length(session.member.phone) > 0 
+										? session.member.phone.split('-')[1] : ''}">
+								</div> - 
+								<div class="col-md-4">
+									<input type="text" class="form-control" name="phone3" id="phone3" 
+										maxlength="4" 
+										th:value="${#strings.length(session.member.phone) > 0 
+										? session.member.phone.split('-')[2] : ''}">
+								</div>
+							</div>
+						</div>	
+					</div>			
+					<div class="row mb-3 mt-5">				
+						<div class="col-8 offset-2">
+							<input type="submit" value="수정하기" class="btn btn-primary">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</th:block>
+</html>			
+
+

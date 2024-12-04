@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
@@ -27,6 +28,12 @@ public class MemberController {
 	// 회원 관련 Business 로직을 담당하는 객체를 의존성 주입하도록 설정
 	@Autowired
 	public MemberService memberService;
+	
+	// 회원 정보 수정 폼 요청을 처리하는 메서드
+	@GetMapping("/memberUpdateForm")
+	public String updateForm(Model model, HttpSession session) {
+		return "member/memberUpdateForm";
+	}
 
 	// 회원가입 폼에서 들어오는 회원가입 요청을 처리하는 메서드
 	@PostMapping("/joinResult")
@@ -36,31 +43,31 @@ public class MemberController {
 			@RequestParam("mobile3") String mobile3, @RequestParam("phone1") String phone1,
 			@RequestParam("phone2") String phone2, @RequestParam("phone3") String phone3,
 			@RequestParam(value = "emailGet", required = false, defaultValue = "false") boolean emailGet) {
+
 		member.setPass(pass1);
 		member.setEmail(emailId + "@" + emailDomain);
 		member.setMobile(mobile1 + "-" + mobile2 + "-" + mobile3);
+
 		if (phone2.equals("") || phone3.equals("")) {
 			member.setPhone("");
 		} else {
 			member.setPhone(phone1 + "-" + phone2 + "-" + phone3);
 		}
-		member.setEmailGet(Boolean.valueOf(emailGet));
+		member.setEamilGet(Boolean.valueOf(emailGet));
 		// MemberService를 통해서 회원 가입 폼에서 들어온 데이터를 DB에 저장한다.
 		memberService.addMember(member);
 		// 로그인 폼으로 리다이렉트 시킨다.
 		return "redirect:loginForm";
 	}
 
-	@GetMapping("/overlapIdCheck")
+	@RequestMapping("/overlapIdCheck")
+	// @GetMapping("/overlapIdCheck")
 	public String overlapIdCheck(Model model, @RequestParam("id") String id) {
-
-		// 회원 아이디 중복 여부
+		// 회원 아이디 중복 여부를 받아 온다.
 		boolean overlap = memberService.overlapIdCheck(id);
-
-		// model에 회원 ID와 회원 ID 중복 여부를 저장
+		// model에 회원 ID와 회원 ID 중복 여부를 저장한다.
 		model.addAttribute("id", id);
 		model.addAttribute("overlap", overlap);
-
 		return "member/overlapIdCheck.html";
 	}
 
