@@ -203,7 +203,7 @@ public class MemberController {
 		} else {			
 			member.setPhone(phone1 + "-" + phone2 + "-" + phone3);
 		}				
-		member.setEamilGet(Boolean.valueOf(emailGet));
+		member.setEmailGet(Boolean.valueOf(emailGet));
 
 		// MemberService를 통해서 회원 가입 폼에서 들어온 데이터를 DB에 저장한다.
 		memberService.addMember(member);
@@ -247,7 +247,7 @@ public class MemberController {
 		} else {			
 			member.setPhone(phone1 + "-" + phone2 + "-" + phone3);
 		}				
-		member.setEamilGet(Boolean.valueOf(emailGet));	
+		member.setEmailGet(Boolean.valueOf(emailGet));	
 			
 		// MemberService를 통해서 회원 수정 폼에서 들어온 데이터를 DB에서 수정한다.
 		memberService.updateMember(member);		

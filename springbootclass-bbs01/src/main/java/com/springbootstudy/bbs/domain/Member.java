@@ -17,7 +17,7 @@ public class Member {
 	
 	private String id, name, pass, email, mobile;
 	private String zipcode, address1, address2, phone;
-	private boolean eamilGet;
+	private boolean emailGet;
 	private Timestamp regDate;
 
 }
