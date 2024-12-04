@@ -254,7 +254,7 @@ public class MemberController {
 		log.info("memberUpdateResult : " + member.getId());
 	
 		/* 클래스 레벨에 @SessionAttributes({"member"}) 
-		 * 애노테이션을 지정하고 컨트롤러의 메서드에서 아래와 같이 동일한 
+		 * 애노테이션을 지정하고 컨트롤러의 메서드에서 아래와 같이 동일한 ㅇ
 		 * 이름으로 모델에 추가하면 스프링이 세션 영역에 데이터를 저장해 준다.
 		 **/ 
 		model.addAttribute("member", member);
